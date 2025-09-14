@@ -1,12 +1,9 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 from pytrends.request import TrendReq
 import pandas as pd
-import plotly.graph_objs as go
-import plotly.utils
 import json
-from datetime import datetime, timedelta
-import time
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for n8n integration
@@ -69,100 +66,9 @@ def get_search_volume_data(keywords, country, start_date, end_date):
     except Exception as e:
         return None, str(e)
 
-def create_trend_chart(keywords, country, start_date, end_date):
-    """
-    Create a trend chart for the keywords
-    """
-    try:
-        pytrends = TrendReq(hl='en-US', tz=360)
-        
-        start_date_str = start_date.strftime('%Y-%m-%d')
-        end_date_str = end_date.strftime('%Y-%m-%d')
-        
-        pytrends.build_payload(
-            keywords, 
-            cat=0, 
-            timeframe=f'{start_date_str} {end_date_str}', 
-            geo=country, 
-            gprop=''
-        )
-        
-        interest_over_time = pytrends.interest_over_time()
-        
-        if interest_over_time.empty:
-            return None
-        
-        # Create plotly figure
-        fig = go.Figure()
-        
-        for keyword in keywords:
-            if keyword in interest_over_time.columns:
-                fig.add_trace(go.Scatter(
-                    x=interest_over_time.index,
-                    y=interest_over_time[keyword],
-                    mode='lines+markers',
-                    name=keyword,
-                    line=dict(width=2)
-                ))
-        
-        fig.update_layout(
-            title=f'Search Volume Trends - {country}',
-            xaxis_title='Date',
-            yaxis_title='Relative Search Volume',
-            hovermode='x unified',
-            template='plotly_white'
-        )
-        
-        return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-        
-    except Exception as e:
-        print(f"Error creating chart: {e}")
-        return None
+# Chart functionality removed - not needed for n8n API
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-@app.route('/search', methods=['POST'])
-def search_keywords():
-    try:
-        data = request.get_json()
-        keywords = [kw.strip() for kw in data['keywords'].split(',') if kw.strip()]
-        country = data['country']
-        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d')
-        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d')
-        
-        if not keywords:
-            return jsonify({'error': 'Please provide at least one keyword'}), 400
-        
-        if country not in COUNTRIES:
-            return jsonify({'error': 'Invalid country selected'}), 400
-        
-        if start_date >= end_date:
-            return jsonify({'error': 'Start date must be before end date'}), 400
-        
-        # Limit to 5 keywords to avoid rate limiting
-        if len(keywords) > 5:
-            keywords = keywords[:5]
-        
-        # Get search volume data
-        results, error = get_search_volume_data(keywords, COUNTRIES[country], start_date, end_date)
-        
-        if error:
-            return jsonify({'error': error}), 400
-        
-        # Create trend chart
-        chart_json = create_trend_chart(keywords, COUNTRIES[country], start_date, end_date)
-        
-        return jsonify({
-            'results': results,
-            'chart': chart_json,
-            'country': country,
-            'period': f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
-        })
-        
-    except Exception as e:
-        return jsonify({'error': f'An error occurred: {str(e)}'}), 500
+# Removed web interface routes - using API only for n8n integration
 
 @app.route('/api/search-volume', methods=['POST'])
 def api_search_volume():

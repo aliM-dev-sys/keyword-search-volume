@@ -1,4 +1,4 @@
-# Use Python 3.9 slim image
+# Fast build Dockerfile - optimized for speed
 FROM python:3.9-slim
 
 # Set working directory
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
-COPY requirements.txt .
+COPY requirements-fast.txt requirements.txt
 
 # Install Python dependencies with optimizations
 RUN pip install --upgrade pip setuptools wheel && \

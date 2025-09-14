@@ -10,6 +10,15 @@ services:
       - FLASK_DEBUG=False
       - PORT=5000
     restart: unless-stopped
+    # Resource limits for shared server
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s

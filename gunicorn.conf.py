@@ -6,16 +6,16 @@ import os
 bind = f"0.0.0.0:{os.environ.get('PORT', 5000)}"
 backlog = 2048
 
-# Worker processes
-workers = multiprocessing.cpu_count() * 2 + 1
+# Worker processes - optimized for shared server (2 vCPU, 4GB RAM)
+workers = 2  # Reduced from cpu_count() * 2 + 1 to prevent resource conflicts
 worker_class = "sync"
-worker_connections = 1000
-timeout = 30
+worker_connections = 500  # Reduced from 1000
+timeout = 60  # Increased to handle Google Trends API delays
 keepalive = 2
 
 # Restart workers after this many requests, to prevent memory leaks
-max_requests = 1000
-max_requests_jitter = 50
+max_requests = 500  # Reduced for shared server
+max_requests_jitter = 25
 
 # Logging
 accesslog = "-"

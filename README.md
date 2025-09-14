@@ -1,76 +1,104 @@
-# Keyword Search Volume Counter
+# Keyword Search Volume API
 
-A modern web application that analyzes keyword search volumes across different countries (US, Canada, UK) for specific time periods using Google Trends data.
+A lightweight API service that provides keyword search volume data for n8n integration using Google Trends data.
 
 ## Features
 
 - 🔍 **Multi-keyword Analysis**: Analyze up to 5 keywords simultaneously
 - 🌍 **Country Support**: United States, Canada, and United Kingdom
 - 📅 **Custom Time Periods**: Specify start and end dates for analysis
-- 📊 **Visual Charts**: Interactive trend charts showing search volume over time
 - 📈 **Detailed Metrics**: Average, peak, and minimum search volumes
-- 🎨 **Modern UI**: Beautiful, responsive design with gradient backgrounds
+- 🚀 **n8n Ready**: Optimized for n8n HTTP requests
+- ⚡ **Lightweight**: Minimal dependencies and fast deployment
+
+## API Endpoints
+
+### Search Volume API
+**POST** `/api/search-volume`
+
+**Request Format:**
+```json
+{
+  "keywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
+  "geo": "US",
+  "startTime": "2025-08-01T00:00:00.000Z",
+  "endTime": "2025-08-31T00:00:00.000Z"
+}
+```
+
+**Response Format:**
+```json
+{
+  "success": true,
+  "error": null,
+  "data": {
+    "keywords": [
+      {
+        "keyword": "keyword1",
+        "average_volume": 45.2,
+        "max_volume": 78,
+        "min_volume": 23,
+        "geo": "US",
+        "period": "2025-08-01 to 2025-08-31"
+      }
+    ],
+    "summary": {
+      "total_keywords": 5,
+      "geo": "US",
+      "period": "2025-08-01 to 2025-08-31",
+      "processed_at": "2024-01-15T10:30:00.000Z"
+    }
+  }
+}
+```
+
+### Health Check
+**GET** `/api/health`
 
 ## Installation
 
-1. **Clone or download this project**
-
-2. **Install Python dependencies**:
+1. **Install Python dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Run the application**:
+2. **Run the application**:
    ```bash
    python app.py
    ```
 
-4. **Open your browser** and navigate to `http://localhost:5000`
+3. **For production with Gunicorn**:
+   ```bash
+   gunicorn --config gunicorn.conf.py app:app
+   ```
 
-## Usage
+## Docker Deployment
 
-1. **Enter Keywords**: Type your keywords separated by commas (e.g., "python programming, web development, data science")
+1. **Build the image**:
+   ```bash
+   docker build -t keyword-search-api .
+   ```
 
-2. **Select Country**: Choose from United States, Canada, or United Kingdom
+2. **Run the container**:
+   ```bash
+   docker run -p 5000:5000 keyword-search-api
+   ```
 
-3. **Set Time Period**: Pick your start and end dates for analysis
+## n8n Integration
 
-4. **Click Search**: The application will analyze the keywords and display results
-
-## How It Works
-
-- Uses the `pytrends` library to access Google Trends data
-- Fetches relative search volume data for specified keywords and countries
-- Calculates average, maximum, and minimum search volumes
-- Generates interactive charts using Plotly
-- Provides a clean, modern web interface
-
-## Important Notes
-
-- **Rate Limiting**: Google Trends has rate limits, so the app limits to 5 keywords per search
-- **Relative Data**: Google Trends provides relative search volume (0-100 scale), not absolute numbers
-- **Data Availability**: Some keywords may not have sufficient data for certain time periods
-- **Free Service**: This tool uses free Google Trends data, which has some limitations compared to paid keyword research tools
+See `n8n_integration_guide.md` for detailed integration instructions.
 
 ## Technical Details
 
 - **Backend**: Flask (Python)
-- **Frontend**: HTML, CSS, JavaScript
 - **Data Source**: Google Trends via pytrends
-- **Charts**: Plotly.js
-- **Styling**: Custom CSS with modern design principles
+- **WSGI Server**: Gunicorn
+- **Container**: Docker optimized
+- **Dependencies**: Minimal (Flask, pytrends, pandas, gunicorn)
 
-## Troubleshooting
+## Important Notes
 
-- If you encounter rate limiting errors, wait a few minutes before trying again
-- Ensure your date range is valid (start date before end date)
-- Some very specific or niche keywords may not return data
-- Make sure all required fields are filled before submitting
-
-## Future Enhancements
-
-- Support for more countries
-- Export functionality (CSV, PDF)
-- Historical data comparison
-- Keyword difficulty analysis
-- Related keywords suggestions
+- **Rate Limiting**: Google Trends has rate limits, max 5 keywords per request
+- **Relative Data**: Google Trends provides relative search volume (0-100 scale)
+- **Data Availability**: Some keywords may not have sufficient data
+- **Free Service**: Uses free Google Trends data with limitations
